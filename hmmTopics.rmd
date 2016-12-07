@@ -14,6 +14,8 @@ hmmTopics searches documents for hidden states ("topics") that are related to ke
 ```{r}
 library(HMM)
 library(tm)
+library(ggplot2)
+library(reshape2)
 
 # clean up the text and tokenize, return the tokenized text and a $dictionary
 clean_text <- function(x){
@@ -21,18 +23,56 @@ clean_text <- function(x){
   x <- tolower(x)
   x <- stemDocument(x)
   x <- stripWhitespace(x)
-  x <- scan_tokenizer(x)
+  x <- removeWords(x, stopwords("SMART"))
+  
+    x <- scan_tokenizer(x)
   dictionary <- unique(x)
   return(list(x, dictionary))
 }
 
 
+# calculate the likelihoods of ordered co-occurence 
+# x is a list containing tokenized text [[1]] and the dictionary [[2]]
+# k is the number of words after the current token we wish to calculate the likelihood from, where k > 1
+k_liks <- function(x, k){  
+  #initialise matrix
+  m <- length(x[[2]])  # length of dictionary
+  L <- matrix(rep(0, m*m), c(m,m), byrow = T)
+  txt <- x[[1]]
+  dictionary <- x[[2]]
+  for(i in 1:(length(x[[1]])-k)){  # error here in that likelihoods not calculated fully for last k words in text
+    for(j in 1:k){
+      a <- match(txt[i], dictionary)
+      b <- match(txt[i+j], dictionary)
+      L[a,b] <- L[a,b] + 1/j
+    }
+  }
+  L <- L/rowSums(L)
+  rownames(L) <- colnames(L) <- dictionary
+  return(L) 
+}
+
+# find the n most commonly co-occurring pairs of words from the posterior
+# x is a list containing a k_liks object
+# n is the number of common co-occurring pairs of words
+
+find_n_post <- function(x, n){
+  K <- data.frame()
+}
+
+# t <- "man bites dog bites man dog bites man"
 
 
-t <- "Contrary to popular belief, man bites dog Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, man bites dog looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites man bites dog of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of \" de Finibus Bonorum et Malorum \" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, \"Lorem ipsum dolor sit amet..\", comes from a line in section 1.10.32. Man bites dog.
+t <- "Contrary to popular belief, man bites dog Lorem Ipsum is not simply man bites dog random text. It has man dog roots in a piece of classical Latin man bites dog literature from 45 BC, making it over 2000 man bites dog years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, man bites dog looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites man bites dog of the word in classical literature, discovered the undoubtable man bites dog source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of \" de Finibus Bonorum et Malorum \" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of man bites dog ethics, very popular during the Renaissance. The first line of Lorem Ipsum, \"Lorem ipsum dolor sit amet..\", man bites dog comes from a line in section 1.10.32. Man bites dog.
 
-The standard dog bites man chunk of Lorem Ipsum used since the 1500s is reproduced below for those interested. Sections 1.10.32 and 1.10.33 from \" de Finibus Bonorum et Malorum \" by Cicero are also dog bites man reproduced in their exact original form, dog bites man accompanied by English versions from the 1914 translation by dog bites man H. Rackham."
+The standard dog bites man chunk of Lorem dog bites man Ipsum used since the 1500s is reproduced below dog bites man for those interested. Sections 1.10.32 and 1.10.33 from \" de Finibus Bonorum et Malorum \" by Cicero are also dog bites man reproduced in their exact original form, dog bites man accompanied by English dog bites man versions from the 1914 translation by dog bites man H. Rackham."
 
 t <- clean_text(t)
 
+
+z <- k_liks(t, 8)
+# which(z >= 0.6, arr.ind = T)
+
+melt.z <- melt(t(z))
+ggplot(melt.z, aes(x=Var1, y = Var2, fill = value)) + geom_tile()
 

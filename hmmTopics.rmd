@@ -15,20 +15,24 @@ hmmTopics searches documents for hidden states ("topics") that are related to ke
 library(HMM)
 library(tm)
 
-# clean up the text and return a TermDocumentMatrix
-clean_text_tdm <- function(x){
-  x <- tm_map(x, stripWhitespace)
-  x <- tm_map(x, removePunctuation)
-  x <- tm_map(x, content_transformer(tolower))
-  x <- tm_map(x, removeWords, stopwords("english"))
-  x <- tm_map(x, stemDocument)
-  x <- TermDocumentMatrix(x)
+# clean up the text and tokenize, return the tokenized text and a $dictionary
+clean_text <- function(x){
+  x <- removePunctuation(x)
+  x <- tolower(x)
+  x <- stemDocument(x)
+  x <- stripWhitespace(x)
+  x <- scan_tokenizer(x)
+  dictionary <- unique(x)
+  return(list(x, dictionary))
 }
+
+
+
 
 t <- "Contrary to popular belief, man bites dog Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, man bites dog looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites man bites dog of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of \" de Finibus Bonorum et Malorum \" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, \"Lorem ipsum dolor sit amet..\", comes from a line in section 1.10.32. Man bites dog.
 
 The standard dog bites man chunk of Lorem Ipsum used since the 1500s is reproduced below for those interested. Sections 1.10.32 and 1.10.33 from \" de Finibus Bonorum et Malorum \" by Cicero are also dog bites man reproduced in their exact original form, dog bites man accompanied by English versions from the 1914 translation by dog bites man H. Rackham."
 
-t <- VCorpus(VectorSource(t))
-t <- clean_text_tdm(t)
-inspect(t)
+t <- clean_text(t)
+
+

@@ -47,7 +47,7 @@ k_liks <- function(x, k){
       L[a,b] <- L[a,b] + 1/j
     }
   }
-  L <- L/rowSums(L)
+  # L <- L/rowSums(L)
   rownames(L) <- colnames(L) <- dictionary
   return(L) 
 }
@@ -70,9 +70,15 @@ The standard dog bites man chunk of Lorem dog bites man Ipsum used since the 150
 t <- clean_text(t)
 
 
-z <- k_liks(t, 8)
-# which(z >= 0.6, arr.ind = T)
+z <- k_liks(t, 10)
+dictionary <- colnames(z)
+map <- which(z == max(z, na.rm = T), arr.ind = T)
+for(i in 1:nrow(map)){
+  cat(dictionary[map[i,1]], dictionary[map[i,2]], '\n')
+}
 
+z["dolor", "sit"]
+z["bites", "man"]
 melt.z <- melt(t(z))
 ggplot(melt.z, aes(x=Var1, y = Var2, fill = value)) + geom_tile()
 

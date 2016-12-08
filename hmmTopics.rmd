@@ -52,13 +52,28 @@ k_liks <- function(x, k){
   return(L) 
 }
 
-# find the n most commonly co-occurring pairs of words from the posterior
-# x is a list containing a k_liks object
-# n is the number of common co-occurring pairs of words
+# given key_words as a vector, find key-words within txt and search forward n-tokens (words)
+# assigning a weight to these co-occurring words based on distance from key-word
+# within training text
+# calculate emmission probabilities and return as a matrix
 
-find_n_post <- function(x, n){
-  K <- data.frame()
+key_word_emmission_probs <- function(key_words, txt, n){
+  L <- list()
+  len <- length(txt[[1]])
+  indx <- lapply(key_words, function(x) which(txt[[1]] %in% x))
+  for(i in seq_along(key_words)){
+    x <- c(); y <- c()
+    for(j in indx[[i]]){
+      for(k in 1:n){
+        # cat("word: ", txt[[1]][(j+k) %% len], "  position: ", (j+k) %% len, '\n')
+        x <- c(x, txt[[1]][j+k])
+        y <- c(y, 1/k)
+      } 
+    }
+  L[[key_words[i]]] <- na.omit(data.frame(x, y))
+  }
 }
+
 
 # t <- "man bites dog bites man dog bites man"
 

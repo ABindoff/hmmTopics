@@ -72,6 +72,9 @@ key_word_emmission_probs <- function(key_words, txt, n){
     }
   L[[key_words[i]]] <- na.omit(data.frame(x, y))
   }
+# calculate emmission probs
+  
+return(L)
 }
 
 

@@ -40,10 +40,10 @@ k_liks <- function(x, k){
   L <- matrix(rep(0, m*m), c(m,m), byrow = T)
   txt <- x[[1]]
   dictionary <- x[[2]]
-  for(i in 1:(length(x[[1]])-k)){  # error here in that likelihoods not calculated fully for last k words in text
+  for(i in 1:length(x[[1]])){  
     for(j in 1:k){
       a <- match(txt[i], dictionary)
-      b <- match(txt[i+j], dictionary)
+      b <- match(txt[i+j %% length(x[[1]])], dictionary)  # this recycles the first words in the text which may bias results
       L[a,b] <- L[a,b] + 1/j
     }
   }
@@ -70,7 +70,7 @@ The standard dog bites man chunk of Lorem dog bites man Ipsum used since the 150
 t <- clean_text(t)
 
 
-z <- k_liks(t, 10)
+z <- k_liks(t, 5)
 dictionary <- colnames(z)
 map <- which(z == max(z, na.rm = T), arr.ind = T)
 for(i in 1:nrow(map)){
